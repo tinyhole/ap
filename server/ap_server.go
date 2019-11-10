@@ -16,6 +16,7 @@ type apServer struct {
 	rpcClient client.Client
 	ctx       context.Context
 	cancelFn  context.CancelFunc
+	listener transport.Listener
 }
 
 func NewAPServer() Server {
@@ -36,17 +37,18 @@ func (a *apServer) Init(opts ...Option) error {
 
 func (a *apServer) Start() error {
 	listener, err := a.transport.Listen(a.opts.Addr)
-	defer listener.Close()
 
 	if err != nil {
 		return errors.Wrap(err, "transport.Listen failed")
 	}
 
 	listener.Accept(a.SetUpCon, a.DestroyCon)
+	a.listener = listener
 	return nil
 }
 
 func (a *apServer) Stop() error {
+	a.listener.Close()
 	a.cancelFn()
 	return nil
 }

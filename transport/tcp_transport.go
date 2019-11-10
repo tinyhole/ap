@@ -3,6 +3,7 @@ package transport
 import (
 	"fmt"
 	"github.com/dubbogo/getty"
+	"github.com/sirupsen/logrus"
 	"github.com/tinyhole/ap/protocol/pack"
 	"github.com/tinyhole/ap/protocol/tcprpc"
 	"net"
@@ -36,12 +37,13 @@ type tcpTransportListener struct {
 }
 
 func (t *tcpTransportListener) Accept(setUp, destroy func(socket Socket)) error {
-	t.l.RunEventLoop(func(session getty.Session) error {
+	go t.l.RunEventLoop(func(session getty.Session) error {
+
 		var (
 			ok      bool
 			tcpConn *net.TCPConn
 		)
-
+		logrus.Debug("======")
 		if tcpConn, ok = session.Conn().(*net.TCPConn); !ok {
 			panic(fmt.Sprintf("%s, session.conn{%#v} is not tcp connection\n", session.Stat(), session.Conn()))
 		}
@@ -68,6 +70,7 @@ func (t *tcpTransportListener) Accept(setUp, destroy func(socket Socket)) error 
 		setUp(eventListener.(*tcpTransportSocket))
 		return nil
 	})
+	logrus.Warn("________--")
 	return nil
 }
 

@@ -6,12 +6,12 @@ import (
 	"github.com/tinyhole/ap/config"
 	"github.com/tinyhole/ap/logger"
 	"github.com/tinyhole/ap/server"
+	"os"
 )
 
 var (
 	APSrv   server.Server
 	RootCmd = &cobra.Command{
-		Use:   "",
 		Short: "run server",
 		Long:  "run server",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -29,6 +29,7 @@ var (
 			APSrv = server.NewAPServer()
 			APSrv.Init(server.WithLocalAddr(fmt.Sprintf(":%d", config.SrvConfig.ApPort)),
 				server.WithSrvID(config.SrvConfig.SrvID))
+			APSrv.Start()
 		},
 	}
 
@@ -37,9 +38,14 @@ var (
 		Short: "print version",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(fmt.Sprintf("version: %d.%d.%d.%d", MAJOR, MINOR, PATCH, BUILD))
+			os.Exit(0)
 		},
 	}
 )
+
+func init(){
+	RootCmd.AddCommand(versionCmd)
+}
 
 func Execute() error {
 	RootCmd.Execute()
