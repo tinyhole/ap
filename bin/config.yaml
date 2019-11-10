@@ -1,0 +1,7 @@
+srvName: ap
+srvID: 1
+apPort: 8080
+logLevel: debug
+logPath: ./log/
+logFileName: ap_log.log
+

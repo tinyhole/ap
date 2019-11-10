@@ -1,0 +1,51 @@
+syntax="proto3";
+package pack;
+
+option go_package ="pack";
+
+enum CallType {
+    CallTypeUnknown = 0;
+    Sync  = 1;
+    Async = 2;
+    Push  = 3;
+}
+
+message RequestMeta {
+   string   serviceName = 1;
+   string   methodName  = 2;
+   CallType callType = 3;
+}
+
+message ResponseMeta{
+    int32  errCode = 1;
+    string errText = 2;
+}
+
+enum DeviceType {
+    DeviceTypeUnknown = 0;
+    PCLinux = 1;
+    PCWindows = 2;
+    PhoneAndroid = 3;
+    PhoneIOS = 4;
+    PadAndroid = 5;
+    PadIOS = 6;
+}
+
+message Device {
+    string      guid = 1;
+    DeviceType  type = 2;
+}
+
+message AuthInfo {
+    int64   uid = 1;
+    string  token = 2;
+}
+
+
+message Header{
+    RequestMeta  request  = 1;
+    ResponseMeta response = 2;
+    int64        seq      = 3;
+    Device       device   = 4;
+    AuthInfo     auth     = 5;
+}
