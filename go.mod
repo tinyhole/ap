@@ -2,6 +2,7 @@ module github.com/tinyhole/ap
 
 require (
 	github.com/dubbogo/getty v1.3.1
+	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.2
 	github.com/micro/go-micro v1.16.0
 	github.com/pkg/errors v0.8.1

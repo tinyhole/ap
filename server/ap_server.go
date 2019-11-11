@@ -16,7 +16,7 @@ type apServer struct {
 	rpcClient client.Client
 	ctx       context.Context
 	cancelFn  context.CancelFunc
-	listener transport.Listener
+	listener  transport.Listener
 }
 
 func NewAPServer() Server {
@@ -93,7 +93,7 @@ func (a *apServer) ProcessMsg(socket transport.Socket, reqPack *pack.ApPackage) 
 		fmt.Sprintf("[%d][%s]", uid, token)
 		//3.认证后处理
 
-		socket.Close()
+		//socket.Close()
 		return ErrAuthFailed
 	}
 	if reqPack.Header.Request != nil {

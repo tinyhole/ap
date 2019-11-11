@@ -3,7 +3,7 @@ package transport
 import (
 	"fmt"
 	"github.com/dubbogo/getty"
-	"github.com/sirupsen/logrus"
+	"github.com/pkg/errors"
 	"github.com/tinyhole/ap/protocol/pack"
 	"github.com/tinyhole/ap/protocol/tcprpc"
 	"net"
@@ -16,14 +16,23 @@ type tcpTransport struct {
 
 func NewTcpTransport() Transport {
 	return &tcpTransport{opts: Options{
-		Codec: tcprpc.NewTcpCodec(),
+		//Codec: tcprpc.NewTcpCodec(),
 	}}
 }
 
 func (t *tcpTransport) Read(session getty.Session, data []byte) (interface{}, int, error) {
 	apPack := &pack.ApPackage{}
-	err := t.opts.Codec.Unmarshal(data, apPack)
-	return apPack, len(data), err
+	unCodec := tcprpc.GetCodec()
+	defer tcprpc.PutCodec(unCodec)
+	err := unCodec.Unmarshal(data, apPack)
+	if err != nil {
+		if err == tcprpc.ErrTotalLengthNotEnough || err == tcprpc.ErrFlagLengthNotEnough {
+			return nil, 0, nil
+		}
+		return nil, 0, errors.WithStack(err)
+	}
+	totalLen := int(tcprpc.HeadLenBytesSize + tcprpc.TotalLenBytesSize + unCodec.(*tcprpc.TcpCodec).TotalLen)
+	return apPack, totalLen, err
 }
 
 func (t *tcpTransport) Write(session getty.Session, pack interface{}) ([]byte, error) {
@@ -43,7 +52,6 @@ func (t *tcpTransportListener) Accept(setUp, destroy func(socket Socket)) error 
 			ok      bool
 			tcpConn *net.TCPConn
 		)
-		logrus.Debug("======")
 		if tcpConn, ok = session.Conn().(*net.TCPConn); !ok {
 			panic(fmt.Sprintf("%s, session.conn{%#v} is not tcp connection\n", session.Stat(), session.Conn()))
 		}
@@ -65,12 +73,11 @@ func (t *tcpTransportListener) Accept(setUp, destroy func(socket Socket)) error 
 		//session.SetTaskPool(t.taskPool)
 
 		session.SetPkgHandler(t.tTransport)
-		eventListener := NewTcpTransportSocket(session,destroy)
+		eventListener := NewTcpTransportSocket(session, destroy)
 		session.SetEventListener(eventListener)
 		setUp(eventListener.(*tcpTransportSocket))
 		return nil
 	})
-	logrus.Warn("________--")
 	return nil
 }
 

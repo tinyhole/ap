@@ -16,7 +16,7 @@ func Init(level string, path, fileName string) {
 	}
 	l, err := logrus.ParseLevel(level)
 	if err != nil {
-		fmt.Printf("log level [%v]convert failed will be set to debug [%v]\n",level,err)
+		fmt.Printf("log level [%v]convert failed will be set to debug [%v]\n", level, err)
 		logrus.SetLevel(logrus.DebugLevel)
 	} else {
 		logrus.SetLevel(l)

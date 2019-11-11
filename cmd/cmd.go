@@ -43,7 +43,7 @@ var (
 	}
 )
 
-func init(){
+func init() {
 	RootCmd.AddCommand(versionCmd)
 }
 
