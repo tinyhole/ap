@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/tinyhole/ap/protocol"
 	pbAP "github.com/tinyhole/ap/protocol/pack"
@@ -82,7 +81,6 @@ func (t TcpCodec) Marshal(v interface{}) ([]byte, error) {
 	totalLen = len(pack.Body) + headLen
 	byteArray = make([]byte, 0, totalLen+TotalLenBytesSize+HeadLenBytesSize)
 
-	fmt.Printf("head len [%d]", headLen)
 	//放入数据
 	binary.BigEndian.PutUint32(headLenBuf, uint32(headLen))
 	binary.BigEndian.PutUint32(totalLenBuf, uint32(totalLen))

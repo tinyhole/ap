@@ -20,6 +20,10 @@ func NewTcpTransport() Transport {
 	}}
 }
 
+var (
+	ErrPkgIncorrect = errors.New("hope *pack.ApPack")
+)
+
 func (t *tcpTransport) Read(session getty.Session, data []byte) (interface{}, int, error) {
 	apPack := &pack.ApPackage{}
 	unCodec := tcprpc.GetCodec()
@@ -35,8 +39,10 @@ func (t *tcpTransport) Read(session getty.Session, data []byte) (interface{}, in
 	return apPack, totalLen, err
 }
 
-func (t *tcpTransport) Write(session getty.Session, pack interface{}) ([]byte, error) {
-	data, err := t.opts.Codec.Marshal(pack)
+func (t *tcpTransport) Write(session getty.Session, pkg interface{}) ([]byte, error) {
+	unCodec := tcprpc.GetCodec()
+	defer tcprpc.PutCodec(unCodec)
+	data,err := unCodec.Marshal(pkg)
 	return data, err
 }
 
@@ -68,7 +74,7 @@ func (t *tcpTransportListener) Accept(setUp, destroy func(socket Socket)) error 
 		session.SetWQLen(1024)
 		session.SetReadTimeout(time.Second)
 		session.SetWriteTimeout(time.Second * 5)
-		session.SetCronPeriod(int(time.Second * 6))
+		session.SetCronPeriod(int(1000 * 6)) //6 second
 		session.SetWaitTime(time.Second * 7)
 		//session.SetTaskPool(t.taskPool)
 

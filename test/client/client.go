@@ -25,6 +25,10 @@ func main() {
 		fmt.Println("Error connecting:", err)
 		os.Exit(1)
 	}
+	tcpc := conn.(*net.TCPConn)
+	tcpc.SetKeepAlive(true)
+	tcpc.SetNoDelay(true)
+
 	defer conn.Close()
 	fmt.Println("Connecting to " + *host + ":" + *port)
 	done := make(chan string)
@@ -68,12 +72,14 @@ func handleWrite(conn net.Conn, done chan string) {
 	done <- "Sent"
 }
 func handleRead(conn net.Conn, done chan string) {
-	buf := make([]byte, 1024)
-	reqLen, err := conn.Read(buf)
-	if err != nil {
-		fmt.Println("Error to read message because of ", err)
-		return
+	for {
+		buf := make([]byte, 10240)
+		reqLen, err := conn.Read(buf)
+		if err != nil {
+			//fmt.Println("Error to read message because of ", err)
+			continue
+		}
+		fmt.Println(string(buf[:reqLen-1]))
 	}
-	fmt.Println(string(buf[:reqLen-1]))
 	done <- "Read"
 }

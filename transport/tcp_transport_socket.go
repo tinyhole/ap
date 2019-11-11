@@ -85,4 +85,5 @@ func (t *tcpTransportSocket) OnMessage(session getty.Session, pkg interface{}) {
 }
 
 func (t *tcpTransportSocket) OnCron(seession getty.Session) {
+	seession.UpdateActive()
 }
