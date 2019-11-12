@@ -13,3 +13,5 @@
 *.idea
 go.sum
 bin/log
+test/client/client
+bin/ap
