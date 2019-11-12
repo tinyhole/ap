@@ -43,7 +43,7 @@ func (a *apServer) Start() error {
 		return errors.Wrap(err, "transport.Listen failed")
 	}
 
-	listener.Accept(a.SetUpCon, a.DestroyCon)
+	listener.Accept(a.SetUpCon, a.DestroyCon,a.ConHeartbeat)
 	a.listener = listener
 	return nil
 }
@@ -56,6 +56,11 @@ func (a *apServer) Stop() error {
 
 func (a *apServer) SetUpCon(socket transport.Socket) {
 	go func(ctx context.Context, socket transport.Socket) {
+		defer func() {
+			if r := recover(); r!= nil{
+				logrus.Warnf("%v",r)
+			}
+		}()
 		var (
 			err error
 		)
@@ -82,6 +87,10 @@ func (a *apServer) SetUpCon(socket transport.Socket) {
 func (a *apServer) DestroyCon(socket transport.Socket) {
 	fID := a.GenerateFid(socket.ID())
 	bucket.DefaultSocketBucket.Remove(fID)
+}
+
+func(a *apServer)ConHeartbeat(socket transport.Socket){
+
 }
 
 func (a *apServer) ProcessMsg(socket transport.Socket, reqPack *pack.ApPackage) error {

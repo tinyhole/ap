@@ -51,7 +51,7 @@ type tcpTransportListener struct {
 	tTransport *tcpTransport
 }
 
-func (t *tcpTransportListener) Accept(setUp, destroy func(socket Socket)) error {
+func (t *tcpTransportListener) Accept(setUp, destroy,heartbeat func(socket Socket)) error {
 	go t.l.RunEventLoop(func(session getty.Session) error {
 
 		var (
@@ -74,12 +74,12 @@ func (t *tcpTransportListener) Accept(setUp, destroy func(socket Socket)) error 
 		session.SetWQLen(1024)
 		session.SetReadTimeout(time.Second)
 		session.SetWriteTimeout(time.Second * 5)
-		session.SetCronPeriod(int(1000 * 6)) //6 second
+		session.SetCronPeriod(int(CronPeriod)/1e6) //6 second
 		session.SetWaitTime(time.Second * 7)
 		//session.SetTaskPool(t.taskPool)
 
 		session.SetPkgHandler(t.tTransport)
-		eventListener := NewTcpTransportSocket(session, destroy)
+		eventListener := NewTcpTransportSocket(session, destroy, heartbeat)
 		session.SetEventListener(eventListener)
 		setUp(eventListener.(*tcpTransportSocket))
 		return nil

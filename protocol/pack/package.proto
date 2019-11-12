@@ -3,6 +3,19 @@ package pack;
 
 option go_package ="pack";
 
+
+
+/*
+客户端发起ping请求，服务端发出pong请求，周期为6s
+请求类型：push
+ping:
+    serviceName = ap
+    methodName  = ping
+pong:
+    serviceName = ap
+    methodName  = pong
+*/
+
 enum CallType {
     CallTypeUnknown = 0;
     Sync  = 1;
